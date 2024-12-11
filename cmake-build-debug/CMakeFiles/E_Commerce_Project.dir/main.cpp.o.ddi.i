@@ -53868,83 +53868,128 @@ int main() {
     Admin admin("admin", "1234");
     Customer customer("john_doe", "password");
 
+    bool adminLoggedIn = false;
+    bool customerLoggedIn = false;
     bool running = true;
+
     while (running) {
         cout << "\nE-Commerce System Menu:\n";
-        cout << "1. Admin Login\n";
-        cout << "2. Customer Login\n";
-        cout << "3. Upload Products (Admin)\n";
-        cout << "4. Browse Products (Customer)\n";
-        cout << "5. Add Product to Cart (Customer)\n";
-        cout << "6. Checkout (Customer)\n";
-        cout << "7. Save Account (Customer)\n";
-        cout << "8. Exit\n";
-        cout << "Enter your choice: ";
+        if (!adminLoggedIn && !customerLoggedIn) {
+            cout << "1. Admin Login\n";
+            cout << "2. Customer Login\n";
+            cout << "3. Exit\n";
+            cout << "Enter your choice: ";
 
-        int choice;
-        cin >> choice;
-        clearInputBuffer();
+            int choice;
+            cin >> choice;
+            clearInputBuffer();
 
-        switch (choice) {
-            case 1: {
-                string username, password;
-                cout << "Enter Admin Username: ";
-                getline(cin, username);
-                cout << "Enter Admin Password: ";
-                getline(cin, password);
-                if (username == admin.getUsername() && password == admin.getPassword()) {
-                    admin.login();
-                } else {
-                    cout << "Invalid Admin credentials.\n";
+            switch (choice) {
+                case 1: {
+                    string username, password;
+                    cout << "Enter Admin Username: ";
+                    getline(cin, username);
+                    cout << "Enter Admin Password: ";
+                    getline(cin, password);
+                    if (username == admin.getUsername() && password == admin.getPassword()) {
+                        admin.login();
+                        adminLoggedIn = true;
+                    } else {
+                        cout << "Invalid Admin credentials.\n";
+                    }
+                    break;
                 }
-                break;
-            }
-            case 2: {
-                string username, password;
-                cout << "Enter Customer Username: ";
-                getline(cin, username);
-                cout << "Enter Customer Password: ";
-                getline(cin, password);
-                if (username == customer.getUsername() && password == customer.getPassword()) {
-                    customer.login();
-                } else {
-                    cout << "Invalid Customer credentials.\n";
+                case 2: {
+                    string username, password;
+                    cout << "Enter Customer Username: ";
+                    getline(cin, username);
+                    cout << "Enter Customer Password: ";
+                    getline(cin, password);
+                    if (username == customer.getUsername() && password == customer.getPassword()) {
+                        customer.login();
+                        customerLoggedIn = true;
+                    } else {
+                        cout << "Invalid Customer credentials.\n";
+                    }
+                    break;
                 }
-                break;
+                case 3:
+                    running = false;
+                    cout << "Exiting the E-Commerce System.\n";
+                    break;
+                default:
+                    cout << "Invalid choice! Please try again.\n";
+                    break;
             }
-            case 3: {
-                string filename;
-                cout << "Enter the path of the CSV file to upload products: ";
-                getline(cin, filename);
-                admin.uploadProductsFromCSV(catalog, filename);
-                break;
+        } else {
+
+            if (adminLoggedIn) {
+                cout << "\nAdmin Menu:\n";
+                cout << "1. Upload Products (Admin)\n";
+                cout << "2. Log Out (Admin)\n";
+                cout << "Enter your choice: ";
+
+                int choice;
+                cin >> choice;
+                clearInputBuffer();
+
+                switch (choice) {
+                    case 1: {
+                        string filename;
+                        cout << "Enter the path of the CSV file to upload products: ";
+                        getline(cin, filename);
+                        admin.uploadProductsFromCSV(catalog, filename);
+                        break;
+                    }
+                    case 2:
+                        adminLoggedIn = false;
+                        cout << "Admin logged out.\n";
+                        break;
+                    default:
+                        cout << "Invalid choice! Please try again.\n";
+                        break;
+                }
             }
-            case 4: {
-                customer.browseProducts(catalog);
-                break;
+
+            if (customerLoggedIn) {
+                cout << "\nCustomer Menu:\n";
+                cout << "1. Browse Products (Customer)\n";
+                cout << "2. Add Product to Cart (Customer)\n";
+                cout << "3. Checkout (Customer)\n";
+                cout << "4. Save Account (Customer)\n";
+                cout << "5. Log Out (Customer)\n";
+                cout << "Enter your choice: ";
+
+                int choice;
+                cin >> choice;
+                clearInputBuffer();
+
+                switch (choice) {
+                    case 1:
+                        customer.browseProducts(catalog);
+                        break;
+                    case 2: {
+                        string productName;
+                        cout << "Enter the name of the product to add to cart: ";
+                        getline(cin, productName);
+                        customer.addToCart(productName);
+                        break;
+                    }
+                    case 3:
+                        customer.checkout(orders);
+                        break;
+                    case 4:
+                        customer.saveAccountToFile("accounts.txt");
+                        break;
+                    case 5:
+                        customerLoggedIn = false;
+                        cout << "Customer logged out.\n";
+                        break;
+                    default:
+                        cout << "Invalid choice! Please try again.\n";
+                        break;
+                }
             }
-            case 5: {
-                string productName;
-                cout << "Enter the name of the product to add to cart: ";
-                getline(cin, productName);
-                customer.addToCart(productName);
-                break;
-            }
-            case 6: {
-                customer.checkout(orders);
-                break;
-            }
-            case 7: {
-                customer.saveAccountToFile("accounts.txt");
-                break;
-            }
-            case 8:
-                running = false;
-                cout << "Exiting the E-Commerce System.\n";
-                break;
-            default:
-                cout << "Invalid choice! Please try again.\n";
-                break;
         }
     }
 
