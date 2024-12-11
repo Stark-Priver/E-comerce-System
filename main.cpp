@@ -5,9 +5,19 @@
 #include <string>
 using namespace std;
 
-// Forward declarations
-class Product;
-class Order;
+// Base User Class
+class User {
+protected:
+    string username;
+    string password;
+
+public:
+    User(string uname = "", string pass = "") : username(uname), password(pass) {}
+    virtual void login() = 0; // Pure virtual function for role-specific login
+
+    string getUsername() const { return username; }
+    string getPassword() const { return password; }
+};
 
 // Product Class
 class Product {
@@ -28,9 +38,10 @@ public:
              << ", Stock: " << stock << endl;
     }
 
+    // Making stock reduction non-const to allow modification
     void reduceStock() {
         if (stock > 0) {
-            stock--;
+            stock--;  // Reduce stock
         } else {
             cout << "Out of stock for " << name << "!\n";
         }
@@ -40,19 +51,19 @@ public:
 // Order Class
 class Order {
     string customerName;
-    vector<Product> products;
+    vector<Product> products;  // Changed to hold Product objects instead of strings
 
 public:
     Order(string cname) : customerName(cname) {}
 
-    void addProduct(const Product& product) {
+    void addProduct(Product& product) {
         products.push_back(product);
     }
 
     void displayOrder() const {
         cout << "Order for " << customerName << ":\n";
         for (const auto& product : products) {
-            cout << "- " << product.getName() << " (Price: $" << product.getPrice() << ")\n";
+            cout << "- " << product.getName() << endl;
         }
     }
 
@@ -65,24 +76,11 @@ public:
 
         file << "Order for " << customerName << ":\n";
         for (const auto& product : products) {
-            file << "- " << product.getName() << " (Price: $" << product.getPrice() << ")\n";
+            file << product.getName() << " - $" << product.getPrice() << "\n";
         }
+        file << endl;
         file.close();
     }
-};
-
-// Base User Class
-class User {
-protected:
-    string username;
-    string password;
-
-public:
-    User(string uname = "", string pass = "") : username(uname), password(pass) {}
-    virtual void login() = 0; // Pure virtual function for role-specific login
-
-    string getUsername() const { return username; }
-    string getPassword() const { return password; }
 };
 
 // Admin Class
@@ -145,7 +143,7 @@ public:
         }
     }
 
-    void addToCart(Product product) {
+    void addToCart(Product& product) {
         cart.push_back(product);
         cout << product.getName() << " added to cart!\n";
     }
@@ -157,9 +155,9 @@ public:
         }
 
         Order newOrder(username);
-        for (const auto& product : cart) {
+        for (auto& product : cart) {
             newOrder.addProduct(product);
-            product.reduceStock();  // Reduce stock for each product in the cart
+            product.reduceStock();  // Now works because we're passing non-const references
         }
 
         orders.push_back(newOrder);
@@ -199,8 +197,7 @@ int main() {
     customer.login();
     customer.saveAccountToFile("accounts.txt"); // Save customer account details
     customer.browseProducts(catalog);
-    customer.addToCart(catalog[0]);  // Example: Adding first product in catalog
-    customer.addToCart(catalog[1]);  // Example: Adding second product in catalog
+    customer.addToCart(catalog[0]);  // Add first product to cart (for testing)
     customer.checkout(orders);
 
     // Display orders
