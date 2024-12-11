@@ -1,0 +1,3 @@
+ninja_dyndep_version = 1.0
+build CMakeFiles/E_Commerce_Project.dir/main.cpp.o: dyndep
+

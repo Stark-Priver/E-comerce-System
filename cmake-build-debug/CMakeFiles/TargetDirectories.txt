@@ -1,0 +1,3 @@
+/home/priver/Studies/E-Commerce Project/cmake-build-debug/CMakeFiles/E_Commerce_Project.dir
+/home/priver/Studies/E-Commerce Project/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/priver/Studies/E-Commerce Project/cmake-build-debug/CMakeFiles/rebuild_cache.dir
