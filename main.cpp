@@ -5,107 +5,9 @@
 #include <string>
 using namespace std;
 
-// Base User Class
-class User {
-protected:
-    string username;
-    string password;
-
-public:
-    User(string uname = "", string pass = "") : username(uname), password(pass) {}
-    virtual void login() = 0; // Pure virtual function for role-specific login
-
-    string getUsername() const { return username; }
-    string getPassword() const { return password; }
-};
-
-// Admin Class
-class Admin : public User {
-public:
-    Admin(string uname, string pass) : User(uname, pass) {}
-
-    void login() override {
-        cout << "Admin login successful!\n";
-    }
-
-    void uploadProductsFromCSV(vector<class Product>& catalog, const string& filename) {
-        ifstream file(filename);
-        if (!file.is_open()) {
-            cout << "Failed to open CSV file.\n";
-            return;
-        }
-
-        string line, name;
-        double price;
-        int stock;
-        while (getline(file, line)) {
-            stringstream ss(line);
-            getline(ss, name, ',');
-            ss >> price;
-            ss.ignore(); // Ignore the comma
-            ss >> stock;
-
-            catalog.push_back(Product(name, price, stock));
-        }
-
-        file.close();
-        cout << "Products uploaded successfully from " << filename << "!\n";
-    }
-};
-
-// Customer Class
-class Customer : public User {
-    vector<string> cart;
-    vector<string> orderHistory;
-
-public:
-    Customer(string uname, string pass) : User(uname, pass) {}
-
-    void login() override {
-        cout << "Customer login successful!\n";
-    }
-
-    void browseProducts(const vector<class Product>& catalog) {
-        cout << "Product Catalog:\n";
-        for (const auto& product : catalog) {
-            product.displayProduct();
-        }
-    }
-
-    void addToCart(string product) {
-        cart.push_back(product);
-        cout << product << " added to cart!\n";
-    }
-
-    void checkout(vector<class Order>& orders) {
-        cout << "Checking out...\n";
-        if (cart.empty()) {
-            cout << "Your cart is empty!\n";
-            return;
-        }
-
-        Order newOrder(username);
-        for (const auto& product : cart) {
-            newOrder.addProduct(product);
-        }
-        orders.push_back(newOrder);
-        orderHistory.push_back("Order placed");
-        cart.clear();
-        cout << "Order placed successfully!\n";
-    }
-
-    void saveAccountToFile(const string& filename) {
-        ofstream file(filename, ios::app);
-        if (!file.is_open()) {
-            cout << "Failed to open file for saving user account.\n";
-            return;
-        }
-
-        file << username << "," << password << endl;
-        file.close();
-        cout << "Account saved to " << filename << "!\n";
-    }
-};
+// Forward declarations
+class Product;
+class Order;
 
 // Product Class
 class Product {
@@ -145,6 +47,113 @@ public:
     }
 };
 
+// Base User Class
+class User {
+protected:
+    string username;
+    string password;
+
+public:
+    User(string uname = "", string pass = "") : username(uname), password(pass) {}
+    virtual void login() = 0; // Pure virtual function for role-specific login
+
+    string getUsername() const { return username; }
+    string getPassword() const { return password; }
+};
+
+// Admin Class
+class Admin : public User {
+public:
+    Admin(string uname, string pass) : User(uname, pass) {}
+
+    void login() override {
+        cout << "Admin login successful!\n";
+    }
+
+    void uploadProductsFromCSV(vector<Product>& catalog, const string& filename) {
+        ifstream file(filename);
+        if (!file.is_open()) {
+            cout << "Failed to open CSV file: " << filename << "\n";
+            return;
+        }
+
+        string line, name;
+        double price;
+        int stock;
+
+        while (getline(file, line)) {
+            stringstream ss(line);
+            getline(ss, name, ',');
+            if (!(ss >> price)) {
+                cout << "Invalid format for price in line: " << line << "\n";
+                continue;
+            }
+            ss.ignore(); // Ignore the comma
+            if (!(ss >> stock)) {
+                cout << "Invalid format for stock in line: " << line << "\n";
+                continue;
+            }
+
+            catalog.push_back(Product(name, price, stock));
+        }
+
+        file.close();
+        cout << "Products uploaded successfully from " << filename << "!\n";
+    }
+};
+
+// Customer Class
+class Customer : public User {
+    vector<string> cart;
+    vector<string> orderHistory;
+
+public:
+    Customer(string uname, string pass) : User(uname, pass) {}
+
+    void login() override {
+        cout << "Customer login successful!\n";
+    }
+
+    void browseProducts(const vector<Product>& catalog) {
+        cout << "Product Catalog:\n";
+        for (const auto& product : catalog) {
+            product.displayProduct();
+        }
+    }
+
+    void addToCart(string product) {
+        cart.push_back(product);
+        cout << product << " added to cart!\n";
+    }
+
+    void checkout(vector<Order>& orders) {
+        if (cart.empty()) {
+            cout << "Your cart is empty!\n";
+            return;
+        }
+
+        Order newOrder(username);
+        for (const auto& product : cart) {
+            newOrder.addProduct(product);
+        }
+        orders.push_back(newOrder);
+        cart.clear();
+        cout << "Order placed successfully!\n";
+    }
+
+    void saveAccountToFile(const string& filename) {
+        ofstream file(filename, ios::app);
+        if (!file.is_open()) {
+            cout << "Failed to open file for saving user account: " << filename << "\n";
+            return;
+        }
+
+        file << username << "," << password << endl;
+        file.close();
+        cout << "Account saved to " << filename << "!\n";
+    }
+};
+
 // Main Function
 int main() {
     vector<Product> catalog;
@@ -165,6 +174,11 @@ int main() {
     customer.browseProducts(catalog);
     customer.addToCart("Laptop");
     customer.checkout(orders);
+
+    // Display orders
+    for (const auto& order : orders) {
+        order.displayOrder();
+    }
 
     return 0;
 }

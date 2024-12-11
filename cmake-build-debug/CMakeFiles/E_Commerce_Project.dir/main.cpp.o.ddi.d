@@ -163,4 +163,5 @@ CMakeFiles/E_Commerce_Project.dir/main.cpp.o.ddi: \
  /usr/include/c++/14/bits/codecvt.h \
  /usr/include/x86_64-linux-gnu/c++/14/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/14/bits/c++io.h \
- /usr/include/c++/14/bits/fstream.tcc
+ /usr/include/c++/14/bits/fstream.tcc /usr/include/c++/14/sstream \
+ /usr/include/c++/14/bits/sstream.tcc
