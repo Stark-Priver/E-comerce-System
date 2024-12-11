@@ -1,0 +1,4 @@
+Order for john_doe:
+Laptop - $1000
+Phone - $500
+
