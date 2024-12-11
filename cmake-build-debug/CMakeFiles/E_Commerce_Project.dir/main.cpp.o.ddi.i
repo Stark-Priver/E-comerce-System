@@ -53761,6 +53761,15 @@ public:
 
     string getUsername() const { return username; }
     string getPassword() const { return password; }
+    virtual void saveCredentials(const string& filename) const {
+        ofstream file(filename, ios::app);
+        if (!file.is_open()) {
+            cout << "Failed to open file for saving user credentials.\n";
+            return;
+        }
+        file << username << "," << password << endl;
+        file.close();
+    }
 };
 
 
@@ -53854,6 +53863,53 @@ public:
         file.close();
         cout << "Account saved to " << filename << "!\n";
     }
+
+    bool verifyCredentials(const string& filename) {
+        ifstream file(filename);
+        if (!file.is_open()) {
+            cout << "Failed to open credentials file: " << filename << "\n";
+            return false;
+        }
+
+        string line;
+        while (getline(file, line)) {
+            stringstream ss(line);
+            string savedUsername, savedPassword;
+            getline(ss, savedUsername, ',');
+            getline(ss, savedPassword);
+
+            if (savedUsername == username && savedPassword == password) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool registerUser(const string& filename) {
+        ifstream file(filename);
+        if (!file.is_open()) {
+            cout << "Failed to open credentials file: " << filename << "\n";
+            return false;
+        }
+
+        string line;
+        while (getline(file, line)) {
+            stringstream ss(line);
+            string savedUsername;
+            getline(ss, savedUsername, ',');
+
+            if (savedUsername == username) {
+                cout << "Username already exists! Please try again with a different username.\n";
+                return false;
+            }
+        }
+
+        file.close();
+        saveAccountToFile(filename);
+        cout << "Registration successful!\n";
+        return true;
+    }
 };
 
 
@@ -53871,13 +53927,15 @@ int main() {
     bool adminLoggedIn = false;
     bool customerLoggedIn = false;
     bool running = true;
+    const string credentialsFile = "accounts.txt";
 
     while (running) {
         cout << "\nE-Commerce System Menu:\n";
         if (!adminLoggedIn && !customerLoggedIn) {
             cout << "1. Admin Login\n";
             cout << "2. Customer Login\n";
-            cout << "3. Exit\n";
+            cout << "3. Register as Customer\n";
+            cout << "4. Exit\n";
             cout << "Enter your choice: ";
 
             int choice;
@@ -53905,7 +53963,9 @@ int main() {
                     getline(cin, username);
                     cout << "Enter Customer Password: ";
                     getline(cin, password);
-                    if (username == customer.getUsername() && password == customer.getPassword()) {
+                    customer = Customer(username, password);
+
+                    if (customer.verifyCredentials(credentialsFile)) {
                         customer.login();
                         customerLoggedIn = true;
                     } else {
@@ -53913,7 +53973,22 @@ int main() {
                     }
                     break;
                 }
-                case 3:
+                case 3: {
+                    string username, password;
+                    cout << "Enter new Customer Username: ";
+                    getline(cin, username);
+                    cout << "Enter new Customer Password: ";
+                    getline(cin, password);
+                    customer = Customer(username, password);
+
+                    if (!customer.registerUser(credentialsFile)) {
+                        cout << "Registration failed.\n";
+                    } else {
+                        customerLoggedIn = true;
+                    }
+                    break;
+                }
+                case 4:
                     running = false;
                     cout << "Exiting the E-Commerce System.\n";
                     break;
@@ -53956,8 +54031,7 @@ int main() {
                 cout << "1. Browse Products (Customer)\n";
                 cout << "2. Add Product to Cart (Customer)\n";
                 cout << "3. Checkout (Customer)\n";
-                cout << "4. Save Account (Customer)\n";
-                cout << "5. Log Out (Customer)\n";
+                cout << "4. Log Out (Customer)\n";
                 cout << "Enter your choice: ";
 
                 int choice;
@@ -53979,9 +54053,6 @@ int main() {
                         customer.checkout(orders);
                         break;
                     case 4:
-                        customer.saveAccountToFile("accounts.txt");
-                        break;
-                    case 5:
                         customerLoggedIn = false;
                         cout << "Customer logged out.\n";
                         break;
