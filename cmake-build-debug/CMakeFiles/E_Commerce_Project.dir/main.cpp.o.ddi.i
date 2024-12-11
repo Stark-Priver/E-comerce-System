@@ -52064,6 +52064,72 @@ namespace std __attribute__ ((__visibility__ ("default")))
 using namespace std;
 
 
+class Product;
+class Order;
+
+
+class Product {
+    string name;
+    double price;
+    int stock;
+
+public:
+    Product(string pname = "", double pprice = 0.0, int pstock = 0)
+        : name(pname), price(pprice), stock(pstock) {}
+
+    string getName() const { return name; }
+    double getPrice() const { return price; }
+    int getStock() const { return stock; }
+
+    void displayProduct() const {
+        cout << "Product: " << name << ", Price: $" << price
+             << ", Stock: " << stock << endl;
+    }
+
+    void reduceStock() {
+        if (stock > 0) {
+            stock--;
+        } else {
+            cout << "Out of stock for " << name << "!\n";
+        }
+    }
+};
+
+
+class Order {
+    string customerName;
+    vector<Product> products;
+
+public:
+    Order(string cname) : customerName(cname) {}
+
+    void addProduct(const Product& product) {
+        products.push_back(product);
+    }
+
+    void displayOrder() const {
+        cout << "Order for " << customerName << ":\n";
+        for (const auto& product : products) {
+            cout << "- " << product.getName() << " (Price: $" << product.getPrice() << ")\n";
+        }
+    }
+
+    void saveOrderToFile() const {
+        ofstream file("orders.txt", ios::app);
+        if (!file.is_open()) {
+            cout << "Failed to open file for saving order!\n";
+            return;
+        }
+
+        file << "Order for " << customerName << ":\n";
+        for (const auto& product : products) {
+            file << "- " << product.getName() << " (Price: $" << product.getPrice() << ")\n";
+        }
+        file.close();
+    }
+};
+
+
 class User {
 protected:
     string username;
@@ -52086,7 +52152,7 @@ public:
         cout << "Admin login successful!\n";
     }
 
-    void uploadProductsFromCSV(vector<class Product>& catalog, const string& filename) {
+    void uploadProductsFromCSV(vector<Product>& catalog, const string& filename) {
         ifstream file(filename);
         if (!file.is_open()) {
             cout << "Failed to open CSV file: " << filename << "\n";
@@ -52120,7 +52186,7 @@ public:
 
 
 class Customer : public User {
-    vector<string> cart;
+    vector<Product> cart;
     vector<string> orderHistory;
 
 public:
@@ -52130,19 +52196,19 @@ public:
         cout << "Customer login successful!\n";
     }
 
-    void browseProducts(const vector<class Product>& catalog) {
+    void browseProducts(const vector<Product>& catalog) {
         cout << "Product Catalog:\n";
         for (const auto& product : catalog) {
             product.displayProduct();
         }
     }
 
-    void addToCart(string product) {
+    void addToCart(Product product) {
         cart.push_back(product);
-        cout << product << " added to cart!\n";
+        cout << product.getName() << " added to cart!\n";
     }
 
-    void checkout(vector<class Order>& orders) {
+    void checkout(vector<Order>& orders) {
         if (cart.empty()) {
             cout << "Your cart is empty!\n";
             return;
@@ -52151,8 +52217,11 @@ public:
         Order newOrder(username);
         for (const auto& product : cart) {
             newOrder.addProduct(product);
+            product.reduceStock();
         }
+
         orders.push_back(newOrder);
+        newOrder.saveOrderToFile();
         cart.clear();
         cout << "Order placed successfully!\n";
     }
@@ -52167,44 +52236,6 @@ public:
         file << username << "," << password << endl;
         file.close();
         cout << "Account saved to " << filename << "!\n";
-    }
-};
-
-
-class Product {
-    string name;
-    double price;
-    int stock;
-
-public:
-    Product(string pname = "", double pprice = 0.0, int pstock = 0)
-        : name(pname), price(pprice), stock(pstock) {}
-
-    string getName() const { return name; }
-
-    void displayProduct() const {
-        cout << "Product: " << name << ", Price: $" << price
-             << ", Stock: " << stock << endl;
-    }
-};
-
-
-class Order {
-    string customerName;
-    vector<string> products;
-
-public:
-    Order(string cname) : customerName(cname) {}
-
-    void addProduct(string product) {
-        products.push_back(product);
-    }
-
-    void displayOrder() const {
-        cout << "Order for " << customerName << ":\n";
-        for (const string& product : products) {
-            cout << "- " << product << endl;
-        }
     }
 };
 
@@ -52226,7 +52257,8 @@ int main() {
     customer.login();
     customer.saveAccountToFile("accounts.txt");
     customer.browseProducts(catalog);
-    customer.addToCart("Laptop");
+    customer.addToCart(catalog[0]);
+    customer.addToCart(catalog[1]);
     customer.checkout(orders);
 
 

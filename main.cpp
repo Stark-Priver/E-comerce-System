@@ -20,30 +20,54 @@ public:
         : name(pname), price(pprice), stock(pstock) {}
 
     string getName() const { return name; }
+    double getPrice() const { return price; }
+    int getStock() const { return stock; }
 
     void displayProduct() const {
         cout << "Product: " << name << ", Price: $" << price
              << ", Stock: " << stock << endl;
+    }
+
+    void reduceStock() {
+        if (stock > 0) {
+            stock--;
+        } else {
+            cout << "Out of stock for " << name << "!\n";
+        }
     }
 };
 
 // Order Class
 class Order {
     string customerName;
-    vector<string> products;
+    vector<Product> products;
 
 public:
     Order(string cname) : customerName(cname) {}
 
-    void addProduct(string product) {
+    void addProduct(const Product& product) {
         products.push_back(product);
     }
 
     void displayOrder() const {
         cout << "Order for " << customerName << ":\n";
-        for (const string& product : products) {
-            cout << "- " << product << endl;
+        for (const auto& product : products) {
+            cout << "- " << product.getName() << " (Price: $" << product.getPrice() << ")\n";
         }
+    }
+
+    void saveOrderToFile() const {
+        ofstream file("orders.txt", ios::app);
+        if (!file.is_open()) {
+            cout << "Failed to open file for saving order!\n";
+            return;
+        }
+
+        file << "Order for " << customerName << ":\n";
+        for (const auto& product : products) {
+            file << "- " << product.getName() << " (Price: $" << product.getPrice() << ")\n";
+        }
+        file.close();
     }
 };
 
@@ -104,7 +128,7 @@ public:
 
 // Customer Class
 class Customer : public User {
-    vector<string> cart;
+    vector<Product> cart;
     vector<string> orderHistory;
 
 public:
@@ -121,9 +145,9 @@ public:
         }
     }
 
-    void addToCart(string product) {
+    void addToCart(Product product) {
         cart.push_back(product);
-        cout << product << " added to cart!\n";
+        cout << product.getName() << " added to cart!\n";
     }
 
     void checkout(vector<Order>& orders) {
@@ -135,8 +159,11 @@ public:
         Order newOrder(username);
         for (const auto& product : cart) {
             newOrder.addProduct(product);
+            product.reduceStock();  // Reduce stock for each product in the cart
         }
+
         orders.push_back(newOrder);
+        newOrder.saveOrderToFile();  // Save the order to file
         cart.clear();
         cout << "Order placed successfully!\n";
     }
@@ -172,7 +199,8 @@ int main() {
     customer.login();
     customer.saveAccountToFile("accounts.txt"); // Save customer account details
     customer.browseProducts(catalog);
-    customer.addToCart("Laptop");
+    customer.addToCart(catalog[0]);  // Example: Adding first product in catalog
+    customer.addToCart(catalog[1]);  // Example: Adding second product in catalog
     customer.checkout(orders);
 
     // Display orders
