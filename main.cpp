@@ -2,8 +2,10 @@
 #include <vector>
 #include <fstream>
 #include <string>
+#include <algorithm> // For search functionality
 using namespace std;
 
+// Base User Class
 class User {
 protected:
     string username;
@@ -14,6 +16,7 @@ public:
     virtual void login() = 0; // Pure virtual function for role-specific login
 };
 
+// Admin Class
 class Admin : public User {
 public:
     Admin(string uname, string pass) : User(uname, pass) {}
@@ -22,19 +25,23 @@ public:
         cout << "Admin login successful!\n";
     }
 
-    void manageProducts() {
+    void manageProducts(vector<class Product>& catalog) {
         cout << "Managing products...\n";
-        // Add product management logic here
+        // Product management logic (Add, Edit, Delete products)
     }
 
-    void viewOrders() {
-        cout << "Viewing orders...\n";
-        // Add order viewing logic here
+    void viewOrders(vector<class Order>& orders) {
+        cout << "Viewing all orders:\n";
+        for (const auto& order : orders) {
+            order.displayOrder();
+        }
     }
 };
 
+// Customer Class
 class Customer : public User {
     vector<string> cart;
+    vector<string> orderHistory;
 
 public:
     Customer(string uname, string pass) : User(uname, pass) {}
@@ -43,9 +50,11 @@ public:
         cout << "Customer login successful!\n";
     }
 
-    void browseProducts() {
-        cout << "Browsing products...\n";
-        // Add product browsing logic here
+    void browseProducts(const vector<class Product>& catalog) {
+        cout << "Product Catalog:\n";
+        for (const auto& product : catalog) {
+            product.displayProduct();
+        }
     }
 
     void addToCart(string product) {
@@ -53,12 +62,32 @@ public:
         cout << product << " added to cart!\n";
     }
 
-    void checkout() {
+    void checkout(vector<class Order>& orders) {
         cout << "Checking out...\n";
-        // Add checkout logic here
+        if (cart.empty()) {
+            cout << "Your cart is empty!\n";
+            return;
+        }
+
+        Order newOrder(username);
+        for (const auto& product : cart) {
+            newOrder.addProduct(product);
+        }
+        orders.push_back(newOrder);
+        orderHistory.push_back("Order placed");
+        cart.clear();
+        cout << "Order placed successfully!\n";
+    }
+
+    void viewOrderHistory() const {
+        cout << "Order History:\n";
+        for (const auto& order : orderHistory) {
+            cout << "- " << order << endl;
+        }
     }
 };
 
+// Product Class
 class Product {
     string name;
     double price;
@@ -68,12 +97,17 @@ public:
     Product(string pname = "", double pprice = 0.0, int pstock = 0)
         : name(pname), price(pprice), stock(pstock) {}
 
+    string getName() const { return name; }
+    double getPrice() const { return price; }
+    int getStock() const { return stock; }
+
     void displayProduct() const {
         cout << "Product: " << name << ", Price: $" << price
              << ", Stock: " << stock << endl;
     }
 };
 
+// Order Class
 class Order {
     string customerName;
     vector<string> products;
@@ -87,28 +121,54 @@ public:
 
     void displayOrder() const {
         cout << "Order for " << customerName << ":\n";
-        for (const string &product : products) {
+        for (const string& product : products) {
             cout << "- " << product << endl;
         }
     }
 };
 
+// Utility Functions
+void searchProducts(const vector<Product>& catalog, const string& query) {
+    cout << "Search Results for \"" << query << "\":\n";
+    for (const auto& product : catalog) {
+        if (product.getName().find(query) != string::npos) {
+            product.displayProduct();
+        }
+    }
+}
+
+// Main Function
 int main() {
+    vector<Product> catalog = {
+        Product("Laptop", 1200.50, 10),
+        Product("Phone", 800.99, 20),
+        Product("Headphones", 150.75, 50)
+    };
+
+    vector<Order> orders;
+
     Admin admin("admin", "1234");
     Customer customer("john_doe", "password");
 
-    Product product1("Laptop", 1200.50, 10);
-    Product product2("Phone", 800.99, 20);
-
     cout << "E-Commerce System\n";
 
+    // Admin operations
     admin.login();
-    admin.manageProducts();
+    admin.manageProducts(catalog);
+    admin.viewOrders(orders);
 
+    // Customer operations
     customer.login();
-    customer.browseProducts();
+    customer.browseProducts(catalog);
     customer.addToCart("Laptop");
-    customer.checkout();
+    customer.checkout(orders);
+    customer.viewOrderHistory();
+
+    // Searching products
+    string searchQuery;
+    cout << "\nEnter product name to search: ";
+    cin >> searchQuery;
+    searchProducts(catalog, searchQuery);
 
     return 0;
 }
