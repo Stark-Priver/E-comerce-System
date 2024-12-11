@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <cstdlib>
 using namespace std;
 
 // Base User Class
@@ -38,7 +39,7 @@ public:
              << ", Stock: " << stock << endl;
     }
 
-    // Making stock reduction non-const to allow modification
+    // Reduce stock
     void reduceStock() {
         if (stock > 0) {
             stock--;  // Reduce stock
@@ -46,12 +47,16 @@ public:
             cout << "Out of stock for " << name << "!\n";
         }
     }
+
+    bool isInStock() const {
+        return stock > 0;
+    }
 };
 
 // Order Class
 class Order {
     string customerName;
-    vector<Product> products;  // Changed to hold Product objects instead of strings
+    vector<Product> products;
 
 public:
     Order(string cname) : customerName(cname) {}
@@ -137,6 +142,11 @@ public:
     }
 
     void browseProducts(const vector<Product>& catalog) {
+        if (catalog.empty()) {
+            cout << "No products available in the catalog.\n";
+            return;
+        }
+
         cout << "Product Catalog:\n";
         for (const auto& product : catalog) {
             product.displayProduct();
@@ -144,8 +154,12 @@ public:
     }
 
     void addToCart(Product& product) {
-        cart.push_back(product);
-        cout << product.getName() << " added to cart!\n";
+        if (product.isInStock()) {
+            cart.push_back(product);
+            cout << product.getName() << " added to cart!\n";
+        } else {
+            cout << "Product is out of stock!\n";
+        }
     }
 
     void checkout(vector<Order>& orders) {
@@ -157,7 +171,7 @@ public:
         Order newOrder(username);
         for (auto& product : cart) {
             newOrder.addProduct(product);
-            product.reduceStock();  // Now works because we're passing non-const references
+            product.reduceStock();  // Reduce stock for each product in the cart
         }
 
         orders.push_back(newOrder);
@@ -193,12 +207,24 @@ int main() {
     admin.login();
     admin.uploadProductsFromCSV(catalog, "products.csv"); // Replace with actual CSV file path
 
+    // Check if catalog is empty
+    if (catalog.empty()) {
+        cout << "No products were uploaded. Exiting program.\n";
+        return 1;
+    }
+
     // Customer operations
     customer.login();
     customer.saveAccountToFile("accounts.txt"); // Save customer account details
+
+    // Browse products and add some to cart
     customer.browseProducts(catalog);
-    customer.addToCart(catalog[0]);  // Add first product to cart (for testing)
-    customer.addToCart(catalog[1]);  // Add second product to cart (for testing)
+    if (catalog.size() > 0) {
+        customer.addToCart(catalog[0]);  // Add first product to cart (for testing)
+        customer.addToCart(catalog[1]);  // Add second product to cart (for testing)
+    }
+
+    // Checkout and place order
     customer.checkout(orders);
 
     // Display orders

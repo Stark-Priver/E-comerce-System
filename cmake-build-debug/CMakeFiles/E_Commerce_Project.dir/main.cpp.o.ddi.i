@@ -52059,8 +52059,13 @@ namespace std __attribute__ ((__visibility__ ("default")))
 # 1239 "/usr/include/c++/14/sstream" 2 3
 # 5 "/home/priver/Studies/E-Commerce Project/main.cpp" 2
 
+# 1 "/usr/include/c++/14/cstdlib" 1 3
+# 39 "/usr/include/c++/14/cstdlib" 3
+       
+# 40 "/usr/include/c++/14/cstdlib" 3
+# 7 "/home/priver/Studies/E-Commerce Project/main.cpp" 2
 
-# 6 "/home/priver/Studies/E-Commerce Project/main.cpp"
+# 7 "/home/priver/Studies/E-Commerce Project/main.cpp"
 using namespace std;
 
 
@@ -52103,6 +52108,10 @@ public:
         } else {
             cout << "Out of stock for " << name << "!\n";
         }
+    }
+
+    bool isInStock() const {
+        return stock > 0;
     }
 };
 
@@ -52202,8 +52211,12 @@ public:
     }
 
     void addToCart(Product& product) {
-        cart.push_back(product);
-        cout << product.getName() << " added to cart!\n";
+        if (product.isInStock()) {
+            cart.push_back(product);
+            cout << product.getName() << " added to cart!\n";
+        } else {
+            cout << "Product is out of stock!\n";
+        }
     }
 
     void checkout(vector<Order>& orders) {
@@ -52254,9 +52267,13 @@ int main() {
 
     customer.login();
     customer.saveAccountToFile("accounts.txt");
+
+
     customer.browseProducts(catalog);
     customer.addToCart(catalog[0]);
     customer.addToCart(catalog[1]);
+
+
     customer.checkout(orders);
 
 
