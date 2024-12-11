@@ -6,6 +6,12 @@
 #include <limits>
 using namespace std;
 
+// Function to clear input buffer
+void clearInputBuffer() {
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+}
+
+
 // Product Class
 class Product {
     string name;
@@ -29,6 +35,11 @@ public:
         if (stock > 0) {
             stock--;
         }
+    }
+
+    // Getter for saving products to CSV
+    string toCSV() const {
+        return name + "," + to_string(price) + "," + to_string(stock);
     }
 };
 
@@ -113,6 +124,44 @@ public:
 
         file.close();
         cout << "Products uploaded successfully from " << filename << "!\n";
+    }
+
+    // Save the product catalog to CSV
+    void saveProductsToCSV(const vector<Product>& catalog, const string& filename) {
+        ofstream file(filename);
+        if (!file.is_open()) {
+            cout << "Failed to open CSV file: " << filename << "\n";
+            return;
+        }
+
+        for (const auto& product : catalog) {
+            file << product.toCSV() << endl;
+        }
+
+        file.close();
+        cout << "Product catalog saved to " << filename << "!\n";
+    }
+
+    void addProduct(vector<Product>& catalog) {
+        string name;
+        double price;
+        int stock;
+        cout << "Enter product name: ";
+        getline(cin, name);
+        cout << "Enter product price: ";
+        cin >> price;
+        cout << "Enter product stock: ";
+        cin >> stock;
+        clearInputBuffer();
+
+        catalog.push_back(Product(name, price, stock));
+        cout << "Product added successfully.\n";
+    }
+
+private:
+    // Helper function to clear the input buffer
+    void clearInputBuffer() {
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 };
 
@@ -215,11 +264,6 @@ public:
     }
 };
 
-// Helper function to clear the input buffer
-void clearInputBuffer() {
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-}
-
 // Main Function
 int main() {
     vector<Product> catalog;
@@ -231,6 +275,7 @@ int main() {
     bool customerLoggedIn = false;
     bool running = true;
     const string credentialsFile = "accounts.txt";
+    const string productCSVFile = "products.csv";
 
     while (running) {
         cout << "\nE-Commerce System Menu:\n";
@@ -303,8 +348,10 @@ int main() {
             // Logged-in user menu
             if (adminLoggedIn) {
                 cout << "\nAdmin Menu:\n";
-                cout << "1. Upload Products (Admin)\n";
-                cout << "2. Log Out (Admin)\n";
+                cout << "1. Add Product\n";
+                cout << "2. Upload Products from CSV\n";
+                cout << "3. Save Product Catalog to CSV\n";
+                cout << "4. Log Out (Admin)\n";
                 cout << "Enter your choice: ";
 
                 int choice;
@@ -312,14 +359,16 @@ int main() {
                 clearInputBuffer();
 
                 switch (choice) {
-                    case 1: {
-                        string filename;
-                        cout << "Enter the path of the CSV file to upload products: ";
-                        getline(cin, filename);
-                        admin.uploadProductsFromCSV(catalog, filename);
+                    case 1:
+                        admin.addProduct(catalog);
                         break;
-                    }
                     case 2:
+                        admin.uploadProductsFromCSV(catalog, productCSVFile);
+                        break;
+                    case 3:
+                        admin.saveProductsToCSV(catalog, productCSVFile);
+                        break;
+                    case 4:
                         adminLoggedIn = false;
                         cout << "Admin logged out.\n";
                         break;
@@ -331,9 +380,9 @@ int main() {
 
             if (customerLoggedIn) {
                 cout << "\nCustomer Menu:\n";
-                cout << "1. Browse Products (Customer)\n";
-                cout << "2. Add Product to Cart (Customer)\n";
-                cout << "3. Checkout (Customer)\n";
+                cout << "1. Browse Products\n";
+                cout << "2. Add to Cart\n";
+                cout << "3. Checkout\n";
                 cout << "4. Log Out (Customer)\n";
                 cout << "Enter your choice: ";
 
@@ -347,7 +396,7 @@ int main() {
                         break;
                     case 2: {
                         string productName;
-                        cout << "Enter the name of the product to add to cart: ";
+                        cout << "Enter product name to add to cart: ";
                         getline(cin, productName);
                         customer.addToCart(productName);
                         break;
@@ -365,12 +414,6 @@ int main() {
                 }
             }
         }
-    }
-
-    // Display orders after exiting
-    cout << "\nAll Orders Placed:\n";
-    for (const auto& order : orders) {
-        order.displayOrder();
     }
 
     return 0;
