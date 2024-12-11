@@ -89,3 +89,9 @@
 275	289	1733917683693453634	CMakeFiles/E_Commerce_Project.dir/main.cpp.o.modmap	47b9e6637340877b
 289	2600	1733917683705453770	CMakeFiles/E_Commerce_Project.dir/main.cpp.o	66ddc24908016669
 2600	3022	1733917686017480054	E_Commerce_Project	5fe604f30e348d7b
+2	158	1733920095737681330	CMakeFiles/E_Commerce_Project.dir/main.cpp.o.ddi	68b389b41b64e280
+158	168	1733920095893679091	CMakeFiles/E_Commerce_Project.dir/CXX.dd	47b9e6637340877b
+158	168	1733920095893679091	/home/priver/Studies/E-Commerce Project/cmake-build-debug/CMakeFiles/E_Commerce_Project.dir/CXXModules.json	47b9e6637340877b
+158	168	1733920095893679091	CMakeFiles/E_Commerce_Project.dir/main.cpp.o.modmap	47b9e6637340877b
+168	1693	1733920095901678977	CMakeFiles/E_Commerce_Project.dir/main.cpp.o	66ddc24908016669
+1694	1867	1733920097429657055	E_Commerce_Project	5fe604f30e348d7b

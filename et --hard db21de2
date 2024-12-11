@@ -1,0 +1,19 @@
+[33m88229ec[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{0}: reset: moving to 88229ec
+[33m88229ec[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{1}: reset: moving to HEAD~10
+[33me988747[m HEAD@{2}: commit: Modified the and Added UIUX Elements
+[33m1f566d4[m HEAD@{3}: commit: Added the pre login menu
+[33m61090a3[m HEAD@{4}: Branch: renamed refs/heads/Main to refs/heads/main
+[33m61090a3[m HEAD@{6}: Branch: renamed refs/heads/master to refs/heads/Main
+[33m61090a3[m HEAD@{8}: commit: Included the Clear screen Functionality
+[33mdb21de2[m HEAD@{9}: commit: Implemented some UI,UX in the Project
+[33m1575f02[m HEAD@{10}: commit: Added the Customer registration option on the menu
+[33ma74bdb9[m HEAD@{11}: commit: Checked if the user is authenticated before displaying other menu options
+[33m7ffcd91[m HEAD@{12}: commit: Added the Comand Line Interaction with a system
+[33mb9c366b[m HEAD@{13}: commit: Implemented the Code error Messages and Debug Messages
+[33m53b8f1a[m HEAD@{14}: commit: Implemented the Login and Logout Functions
+[33me87b2e4[m HEAD@{15}: commit: Resolved some bugs and Miss behaves
+[33m88229ec[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{16}: commit: Implemented the Key features
+[33m066e1ec[m HEAD@{17}: commit: Corrected some Bugs in the Project skeleton
+[33m2e1a878[m HEAD@{18}: commit: Added the New feture to import the Products from the CSV file and to save the user account on txt file
+[33m1799a07[m HEAD@{19}: commit: Added some new features
+[33mf2c5ff0[m HEAD@{20}: commit (initial): Created the Project Skeleton
