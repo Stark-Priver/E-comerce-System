@@ -63,7 +63,7 @@ public:
     void displayOrder() const {
         cout << "Order for " << customerName << ":\n";
         for (const auto& product : products) {
-            cout << "- " << product.getName() << endl;
+            cout << "- " << product.getName() << " ($" << product.getPrice() << ")\n";
         }
     }
 
@@ -198,6 +198,7 @@ int main() {
     customer.saveAccountToFile("accounts.txt"); // Save customer account details
     customer.browseProducts(catalog);
     customer.addToCart(catalog[0]);  // Add first product to cart (for testing)
+    customer.addToCart(catalog[1]);  // Add second product to cart (for testing)
     customer.checkout(orders);
 
     // Display orders

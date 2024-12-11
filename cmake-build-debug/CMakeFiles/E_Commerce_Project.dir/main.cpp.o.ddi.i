@@ -52064,8 +52064,18 @@ namespace std __attribute__ ((__visibility__ ("default")))
 using namespace std;
 
 
-class Product;
-class Order;
+class User {
+protected:
+    string username;
+    string password;
+
+public:
+    User(string uname = "", string pass = "") : username(uname), password(pass) {}
+    virtual void login() = 0;
+
+    string getUsername() const { return username; }
+    string getPassword() const { return password; }
+};
 
 
 class Product {
@@ -52086,6 +52096,7 @@ public:
              << ", Stock: " << stock << endl;
     }
 
+
     void reduceStock() {
         if (stock > 0) {
             stock--;
@@ -52103,14 +52114,14 @@ class Order {
 public:
     Order(string cname) : customerName(cname) {}
 
-    void addProduct(const Product& product) {
+    void addProduct(Product& product) {
         products.push_back(product);
     }
 
     void displayOrder() const {
         cout << "Order for " << customerName << ":\n";
         for (const auto& product : products) {
-            cout << "- " << product.getName() << " (Price: $" << product.getPrice() << ")\n";
+            cout << "- " << product.getName() << " ($" << product.getPrice() << ")\n";
         }
     }
 
@@ -52123,24 +52134,11 @@ public:
 
         file << "Order for " << customerName << ":\n";
         for (const auto& product : products) {
-            file << "- " << product.getName() << " (Price: $" << product.getPrice() << ")\n";
+            file << product.getName() << " - $" << product.getPrice() << "\n";
         }
+        file << endl;
         file.close();
     }
-};
-
-
-class User {
-protected:
-    string username;
-    string password;
-
-public:
-    User(string uname = "", string pass = "") : username(uname), password(pass) {}
-    virtual void login() = 0;
-
-    string getUsername() const { return username; }
-    string getPassword() const { return password; }
 };
 
 
@@ -52203,7 +52201,7 @@ public:
         }
     }
 
-    void addToCart(Product product) {
+    void addToCart(Product& product) {
         cart.push_back(product);
         cout << product.getName() << " added to cart!\n";
     }
@@ -52215,7 +52213,7 @@ public:
         }
 
         Order newOrder(username);
-        for (const auto& product : cart) {
+        for (auto& product : cart) {
             newOrder.addProduct(product);
             product.reduceStock();
         }
