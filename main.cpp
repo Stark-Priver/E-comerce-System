@@ -1,8 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <sstream>
 #include <string>
-#include <algorithm> // For search functionality
 using namespace std;
 
 // Base User Class
@@ -14,6 +14,9 @@ protected:
 public:
     User(string uname = "", string pass = "") : username(uname), password(pass) {}
     virtual void login() = 0; // Pure virtual function for role-specific login
+
+    string getUsername() const { return username; }
+    string getPassword() const { return password; }
 };
 
 // Admin Class
@@ -25,16 +28,28 @@ public:
         cout << "Admin login successful!\n";
     }
 
-    void manageProducts(vector<class Product>& catalog) {
-        cout << "Managing products...\n";
-        // Product management logic (Add, Edit, Delete products)
-    }
-
-    void viewOrders(vector<class Order>& orders) {
-        cout << "Viewing all orders:\n";
-        for (const auto& order : orders) {
-            order.displayOrder();
+    void uploadProductsFromCSV(vector<class Product>& catalog, const string& filename) {
+        ifstream file(filename);
+        if (!file.is_open()) {
+            cout << "Failed to open CSV file.\n";
+            return;
         }
+
+        string line, name;
+        double price;
+        int stock;
+        while (getline(file, line)) {
+            stringstream ss(line);
+            getline(ss, name, ',');
+            ss >> price;
+            ss.ignore(); // Ignore the comma
+            ss >> stock;
+
+            catalog.push_back(Product(name, price, stock));
+        }
+
+        file.close();
+        cout << "Products uploaded successfully from " << filename << "!\n";
     }
 };
 
@@ -79,11 +94,16 @@ public:
         cout << "Order placed successfully!\n";
     }
 
-    void viewOrderHistory() const {
-        cout << "Order History:\n";
-        for (const auto& order : orderHistory) {
-            cout << "- " << order << endl;
+    void saveAccountToFile(const string& filename) {
+        ofstream file(filename, ios::app);
+        if (!file.is_open()) {
+            cout << "Failed to open file for saving user account.\n";
+            return;
         }
+
+        file << username << "," << password << endl;
+        file.close();
+        cout << "Account saved to " << filename << "!\n";
     }
 };
 
@@ -98,8 +118,6 @@ public:
         : name(pname), price(pprice), stock(pstock) {}
 
     string getName() const { return name; }
-    double getPrice() const { return price; }
-    int getStock() const { return stock; }
 
     void displayProduct() const {
         cout << "Product: " << name << ", Price: $" << price
@@ -127,24 +145,9 @@ public:
     }
 };
 
-// Utility Functions
-void searchProducts(const vector<Product>& catalog, const string& query) {
-    cout << "Search Results for \"" << query << "\":\n";
-    for (const auto& product : catalog) {
-        if (product.getName().find(query) != string::npos) {
-            product.displayProduct();
-        }
-    }
-}
-
 // Main Function
 int main() {
-    vector<Product> catalog = {
-        Product("Laptop", 1200.50, 10),
-        Product("Phone", 800.99, 20),
-        Product("Headphones", 150.75, 50)
-    };
-
+    vector<Product> catalog;
     vector<Order> orders;
 
     Admin admin("admin", "1234");
@@ -154,21 +157,14 @@ int main() {
 
     // Admin operations
     admin.login();
-    admin.manageProducts(catalog);
-    admin.viewOrders(orders);
+    admin.uploadProductsFromCSV(catalog, "products.csv"); // Replace with actual CSV file path
 
     // Customer operations
     customer.login();
+    customer.saveAccountToFile("accounts.txt"); // Save customer account details
     customer.browseProducts(catalog);
     customer.addToCart("Laptop");
     customer.checkout(orders);
-    customer.viewOrderHistory();
-
-    // Searching products
-    string searchQuery;
-    cout << "\nEnter product name to search: ";
-    cin >> searchQuery;
-    searchProducts(catalog, searchQuery);
 
     return 0;
 }
